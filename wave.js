@@ -44,4 +44,21 @@ class WaveField {
         }
         [this.uNew, this.uCur, this.uPre] = [this.uPre, this.uNew, this.uCur];
     }
+
+    set_u(x, y, height) {
+        if (0 <= x && x < this.waveWNum && 0 <= y && y < this.waveHNum) {
+            this.uCur[x][y] = height;
+            this.uPre[x][y] = height;
+        }
+    }
+    makeWave(x, y, height, radius) {
+        for (let i = x - radius; i < x + radius; i++) {
+            for (let j = y - radius; j < y + radius; j++) {
+                let distRatio = ((i - x) * (i - x) + (j - y) * (j - y)) / (radius * radius);
+                if (distRatio <= 1) {
+                    this.set_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
+                }
+            }
+        }
+    }
 }
