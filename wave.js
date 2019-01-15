@@ -54,7 +54,7 @@ class WaveField {
     makeWave(x, y, height, radius) {
         for (let i = x - radius; i < x + radius; i++) {
             for (let j = y - radius; j < y + radius; j++) {
-                let distRatio = ((i - x) * (i - x) + (j - y) * (j - y)) / (radius * radius);
+                let distRatio = Math.sqrt((i - x) * (i - x) + (j - y) * (j - y)) / radius;
                 if (distRatio <= 1) {
                     this.set_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
                 }
