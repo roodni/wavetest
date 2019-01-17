@@ -21,6 +21,10 @@ class WaveField {
         }
     }
     get_uCur(x, y) {
+        x = Math.min(x, this.waveWNum - 1);
+        x = Math.max(x, 0);
+        y = Math.min(y, this.waveHNum - 1);
+        y = Math.max(y, 0);
         if (x < 0 || this.waveWNum <= x || y < 0 || this.waveHNum <= y) {
             return 0;
         } else {
@@ -64,6 +68,14 @@ class WaveField {
                 if (distRatio <= 1) {
                     this.add_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
                 }
+            }
+        }
+    }
+    makeWaveX(x, height, radius) {
+        for (let i = Math.floor(x - radius); i < x + radius; i++) {
+            let distRatio = Math.abs(i - x) / radius;
+            for (let j = 0; j < this.waveHNum; j++) {
+                this.add_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
             }
         }
     }
