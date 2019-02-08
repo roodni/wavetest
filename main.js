@@ -7,7 +7,7 @@ const waveH = 100;
 class Main {
     init() {
         this.wave = new WaveField();
-        this.wave.init(waveW, waveH, 1.0, 30.0);
+        this.wave.init(waveW, waveH, 1.0, 30.0, 0.1);
         this.wave.makeWave(20, 30, 1.0, 6.0);
 
         this.waveRenderer = new WaveRenderer();

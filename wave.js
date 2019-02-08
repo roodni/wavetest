@@ -1,9 +1,10 @@
 class WaveField {
-    init(waveWNum, waveHNum, gridWidth, speed) {
+    init(waveWNum, waveHNum, gridWidth, speed, decay) {
         this.waveWNum = waveWNum;
         this.waveHNum = waveHNum;
         this.gridWidth = gridWidth;
         this.speed = speed;
+        this.decay = decay;
 
         this.uPre = [];
         this.uCur = [];
@@ -43,7 +44,7 @@ class WaveField {
                 let uCurB = this.get_uCur(i, j + 1);
                 let uPre = this.uPre[i][j];
 
-                this.uNew[i][j] = 2 * uCur - uPre + alpha * (uCurT + uCurB + uCurL + uCurR - 4 * uCur);
+                this.uNew[i][j] = 2 * uCur - uPre + alpha * (uCurT + uCurB + uCurL + uCurR - 4 * uCur) - this.decay * timeStep * (uCur - uPre);
             }
         }
         [this.uNew, this.uCur, this.uPre] = [this.uPre, this.uNew, this.uCur];
