@@ -80,3 +80,62 @@ class WaveField {
         }
     }
 }
+
+class WaveRenderer {
+    init(waveField) {
+        this.waveField = waveField;
+
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+        });
+        this.renderer.setSize(screenW, screenH);
+        document.body.appendChild(this.renderer.domElement);
+
+
+        this.scene = new THREE.Scene();
+
+
+        const waveW = this.waveField.waveWNum;
+        const waveH = this.waveField.waveHNum;
+        this.waveGeometory = new THREE.PlaneGeometry(waveW, waveH, waveW - 1, waveH - 1);
+
+        const material = new THREE.MeshLambertMaterial({
+            color: 0xccccFF,
+            //wireframe: true
+        });
+
+        this.mesh = new THREE.Mesh(this.waveGeometory, material);
+        this.mesh.rotation.x = -Math.PI / 2;
+        this.scene.add(this.mesh);
+
+
+        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
+        directionalLight.position.set(0, 100, waveH);
+        this.scene.add(directionalLight);
+
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.1);
+        this.scene.add(ambientLight);
+        
+
+        this.camera = new THREE.PerspectiveCamera(30, screenW / screenH);
+        this.camera.position.set(0, 100, waveH);
+        this.camera.lookAt(0, 0, 0);
+    }
+    render() {
+        //this.mesh.rotation.z += 0.001;
+
+        const geo = this.waveGeometory;
+        const waveW = this.waveField.waveWNum;
+
+        //ボトルネックくん
+        for (let i = 0; i < geo.vertices.length; i++) {
+            const vertex = geo.vertices[i];
+            vertex.z = this.waveField.uCur[i % waveW][Math.floor(i / waveW)] * -10;
+        }
+        geo.verticesNeedUpdate = true;
+        geo.computeFaceNormals();
+        geo.computeVertexNormals();
+
+        this.renderer.render(this.scene, this.camera);
+    }
+}
