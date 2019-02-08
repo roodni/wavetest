@@ -118,11 +118,11 @@ class WaveRenderer {
         
 
         this.camera = new THREE.PerspectiveCamera(30, screenW / screenH);
-        this.camera.position.set(0, 100, waveH);
+        this.camera.position.set(0, 100, waveH * 1.5);
         this.camera.lookAt(0, 0, 0);
     }
     render() {
-        //this.mesh.rotation.z += 0.001;
+        this.mesh.rotation.z += 0.001;
 
         const geo = this.waveGeometory;
         const waveW = this.waveField.waveWNum;
