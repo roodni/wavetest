@@ -83,14 +83,14 @@ class WaveField {
 }
 
 class WaveRenderer {
-    init(waveField) {
+    init(waveField, canvas) {
         this.waveField = waveField;
 
         this.renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
             antialias: true,
         });
         this.renderer.setSize(screenW, screenH);
-        document.body.appendChild(this.renderer.domElement);
 
 
         this.scene = new THREE.Scene();
@@ -121,6 +121,8 @@ class WaveRenderer {
         this.camera = new THREE.PerspectiveCamera(30, screenW / screenH);
         this.camera.position.set(0, 100, waveH * 1.5);
         this.camera.lookAt(0, 0, 0);
+
+        this.raycaster = new THREE.Raycaster();
     }
     render() {
         this.mesh.rotation.z += 0.001;
@@ -138,5 +140,19 @@ class WaveRenderer {
         geo.computeVertexNormals();
 
         this.renderer.render(this.scene, this.camera);
+    }
+    click(x, y) {
+        const mouse = new THREE.Vector2();
+        mouse.x = x;
+        mouse.y = y;
+        
+        this.raycaster.setFromCamera(mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.scene.children);
+
+        if (intersects.length > 0) {
+            const localPos = this.mesh.worldToLocal(intersects[0].point);
+            this.waveField.makeWave(localPos.x + this.waveField.waveWNum / 2, -localPos.y + this.waveField.waveHNum / 2, 1.0, 6.0);
+        }
+        
     }
 }
