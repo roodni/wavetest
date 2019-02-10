@@ -22,7 +22,7 @@ class MouseInput {
             this._down = false;
         });
         elm.addEventListener("mousewheel", (e) => {
-            e.preventDefault();
+            //e.preventDefault();
             this._wheel = e.wheelDelta;
         });
         elm.addEventListener("mousedown", () => {
