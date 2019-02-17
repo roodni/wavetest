@@ -6,6 +6,8 @@ class WaveField {
         this.speed = speed;
         this.decay = decay;
 
+        this.lastTimeStep = 1 / 60;
+
         this.uPre = [];
         this.uCur = [];
         this.uNew = [];
@@ -48,39 +50,40 @@ class WaveField {
             }
         }
         [this.uNew, this.uCur, this.uPre] = [this.uPre, this.uNew, this.uCur];
+
+        this.lastTimeStep = timeStep;
     }
 
-    set_u(x, y, height) {
-        if (0 <= x && x < this.waveWNum && 0 <= y && y < this.waveHNum) {
-            this.uCur[x][y] = height;
-            this.uPre[x][y] = height;
-        }
-    }
-    add_u(x, y, height) {
-        if (0 <= x && x < this.waveWNum && 0 <= y && y < this.waveHNum) {
-            this.uCur[x][y] += height;
-            this.uPre[x][y] += height;
-        }
-    }
     makeWave(x, y, height, radius) {
-        for (let i = Math.floor(x - radius); i < x + radius; i++) {
-            for (let j = Math.floor(y - radius); j < y + radius; j++) {
-                let distRatio = Math.sqrt((i - x) * (i - x) + (j - y) * (j - y)) / radius;
-                if (distRatio <= 1) {
-                    this.add_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
+        // 新たに生成する波を表す関数
+        const f = (x, y, height, radius) => {
+            let distRatio = Math.sqrt(x * x + y * y) / radius;
+            if (distRatio <= 1) {
+                let cos = Math.cos(Math.PI / 2 * distRatio);
+                return height * cos * cos;
+            } else {
+                return 0;
+            }
+        }
+
+        // 追加
+        for (let i = Math.floor(x - radius); i <= x + radius; i++) {
+            for (let j = Math.floor(y - radius); j <= y + radius; j++) {
+                if (0 <= i && i < this.waveWNum && 0 <= j && j < this.waveHNum) {
+                    let C = f(i - x, j - y, height, radius);
+                    let L = f(i - x - 1, j - y, height, radius);
+                    let R = f(i - x + 1, j - y, height, radius);
+                    let T = f(i - x, j - y - 1, height, radius);
+                    let B = f(i - x, j - y + 1, height, radius);
+                    this.uPre[i][j] += C;
+                    let keisu = Math.pow(this.lastTimeStep * this.speed / this.gridWidth, 2) / 2;
+                    this.uCur[i][j] += C + keisu * (L + R + T + B - 4 * C);
                 }
             }
         }
     }
-    makeWaveX(x, height, radius) {
-        for (let i = Math.floor(x - radius); i < x + radius; i++) {
-            let distRatio = Math.abs(i - x) / radius;
-            for (let j = 0; j < this.waveHNum; j++) {
-                this.add_u(i, j, height * Math.cos(Math.PI / 2 * distRatio));
-            }
-        }
-    }
 }
+
 
 class WaveRenderer {
     init(waveField, canvas) {
@@ -111,7 +114,7 @@ class WaveRenderer {
 
 
         const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
-        directionalLight.position.set(0, 100, waveH);
+        directionalLight.position.set(0, waveH, waveH);
         this.scene.add(directionalLight);
 
         const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.1);
@@ -119,7 +122,7 @@ class WaveRenderer {
         
 
         this.camera = new THREE.PerspectiveCamera(30, screenW / screenH);
-        this.camera.position.set(0, 100, waveH * 1.5);
+        this.camera.position.set(0, waveH, waveH * 1.5);
         this.camera.lookAt(0, 0, 0);
 
         this.raycaster = new THREE.Raycaster();
@@ -133,7 +136,7 @@ class WaveRenderer {
         //ボトルネックくん
         for (let i = 0; i < geo.vertices.length; i++) {
             const vertex = geo.vertices[i];
-            vertex.z = this.waveField.uCur[i % waveW][Math.floor(i / waveW)] * -10;
+            vertex.z = this.waveField.uCur[i % waveW][Math.floor(i / waveW)] * 10;
         }
         geo.verticesNeedUpdate = true;
         geo.computeFaceNormals();
