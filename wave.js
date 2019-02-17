@@ -11,16 +11,10 @@ class WaveField {
         this.uPre = [];
         this.uCur = [];
         this.uNew = [];
-
         for (let i = 0; i < this.waveWNum; i++) {
-            this.uPre[i] = [];
-            this.uCur[i] = [];
-            this.uNew[i] = [];
-            for (let j = 0; j < this.waveHNum; j++) {
-                this.uPre[i][j] = 0;
-                this.uCur[i][j] = 0;
-                this.uNew[i][j] = 0;
-            }
+            this.uPre[i] = new Array(this.waveHNum).fill(0);
+            this.uCur[i] = new Array(this.waveHNum).fill(0);
+            this.uNew[i] = new Array(this.waveHNum).fill(0);
         }
     }
     get_uCur(x, y) {
